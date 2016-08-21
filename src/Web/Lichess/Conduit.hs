@@ -11,9 +11,6 @@ module Web.Lichess.Conduit (userGames) where
   getGamesPage :: String -> Int -> IO (Maybe ([Value], Int))
   getGamesPage userName page = do
     gamesResult <- getUserGames userName page
-
-    putStrLn ("page: " ++ show page)
-
     case gamesResult of
       Left err -> error err
       Right [] -> return Nothing
