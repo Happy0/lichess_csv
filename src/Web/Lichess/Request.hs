@@ -79,7 +79,7 @@ module Web.Lichess.Request (Page,
 
   getUserGames :: String -> Page -> IO (Either String [Value])
   getUserGames userName page = do
-    let options = paginatorOptions page
+    let options = paginatorOptions page & param "nb" .~ ["100"]
     let url = "http://en.lichess.org/api/user/" ++ userName ++ "/games"
     r <- makeRequest url (Just options)
 
@@ -109,6 +109,6 @@ module Web.Lichess.Request (Page,
 
     where
       makeRequest request = do
-        r <- asJSON =<< get url
+        r <- asJSON =<< request
         threadDelay 1000000
         return (r ^. responseBody)

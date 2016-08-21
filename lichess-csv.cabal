@@ -24,6 +24,7 @@ executable lichess-csv
   -- other-extensions:
   build-depends:       base >=4.9 && <4.10,
                        aeson >= 1.0.0.0 && < 1.1.0.0,
+                       conduit >= 1.2.7 && < 1.3.0,
                        containers >= 0.5.7.1 && < 0.5.8.0,
                        lens,
                        lens-aeson >=1.0.0.5 && < 1.1.0.0,
