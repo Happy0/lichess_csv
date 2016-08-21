@@ -19,25 +19,20 @@ module Web.Lichess.Conduit (userGames,
     L.unfoldM (getTournamentPairingsPage tournamentId) 1 =$= L.concat
 
   getGamesPage :: String -> Int -> IO (Maybe ([Value], Int))
-  getGamesPage userName page = do
-    gamesResult <- getUserGames userName page
-    case gamesResult of
-      Left jsonErr -> error jsonErr
-      Right [] -> return Nothing
-      Right games -> return (Just (games, succ page))
+  getGamesPage userName page = getResourcePage getUserGames userName page
 
   getTournamentStandingsPage :: String -> Int -> IO (Maybe ([Value], Int))
-  getTournamentStandingsPage tournamentId page = do
-    standingsResult <- getTournamentStandings tournamentId page
-    case standingsResult of
-      Left jsonErr -> error jsonErr
-      Right [] -> return Nothing
-      Right standings -> return (Just (standings, succ page))
+  getTournamentStandingsPage tournamentId page =
+     getResourcePage getTournamentStandings tournamentId page
 
   getTournamentPairingsPage :: String -> Int -> IO (Maybe ([Value], Int))
-  getTournamentPairingsPage tournamentId page = do
-    pairingsResult <- getTournamentPairings tournamentId page
-    case pairingsResult of
+  getTournamentPairingsPage tournamentId page =
+     getResourcePage getTournamentPairings tournamentId page
+
+  getResourcePage :: (String -> Int -> IO (Either String [Value])) -> String -> Int -> IO (Maybe ([Value], Int))
+  getResourcePage resourceGetter resource page = do
+    result <- resourceGetter resource page
+    case result of
       Left jsonErr -> error jsonErr
       Right [] -> return Nothing
-      Right standings -> return (Just (standings, succ page))
+      Right re -> return (Just (re, succ page))
