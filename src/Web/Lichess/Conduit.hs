@@ -1,4 +1,5 @@
 module Web.Lichess.Conduit (userGames,
+                            tournamentPairings,
                             tournamentStandings) where
 
   import Data.Aeson
@@ -13,6 +14,10 @@ module Web.Lichess.Conduit (userGames,
   tournamentStandings tournamentId =
      L.unfoldM (getTournamentStandingsPage tournamentId) 1 =$= L.concat
 
+  tournamentPairings :: String -> Source IO Value
+  tournamentPairings tournamentId =
+    L.unfoldM (getTournamentPairingsPage tournamentId) 1 =$= L.concat
+
   getGamesPage :: String -> Int -> IO (Maybe ([Value], Int))
   getGamesPage userName page = do
     gamesResult <- getUserGames userName page
@@ -23,8 +28,16 @@ module Web.Lichess.Conduit (userGames,
 
   getTournamentStandingsPage :: String -> Int -> IO (Maybe ([Value], Int))
   getTournamentStandingsPage tournamentId page = do
-    tournamentResult <- getTournamentStandings tournamentId page
-    case tournamentResult of
+    standingsResult <- getTournamentStandings tournamentId page
+    case standingsResult of
+      Left jsonErr -> error jsonErr
+      Right [] -> return Nothing
+      Right standings -> return (Just (standings, succ page))
+
+  getTournamentPairingsPage :: String -> Int -> IO (Maybe ([Value], Int))
+  getTournamentPairingsPage tournamentId page = do
+    pairingsResult <- getTournamentPairings tournamentId page
+    case pairingsResult of
       Left jsonErr -> error jsonErr
       Right [] -> return Nothing
       Right standings -> return (Just (standings, succ page))
