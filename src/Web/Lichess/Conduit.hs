@@ -29,7 +29,10 @@ module Web.Lichess.Conduit (userGames,
   getTournamentPairingsPage tournamentId page =
      getResourcePage getTournamentPairings tournamentId page
 
-  getResourcePage :: (String -> Int -> IO (Either String [Value])) -> String -> Int -> IO (Maybe ([Value], Int))
+  getResourcePage :: (String -> Int -> IO (Either String [Value]))
+                     -> String
+                     -> Int
+                     -> IO (Maybe ([Value], Int))
   getResourcePage resourceGetter resource page = do
     result <- resourceGetter resource page
     case result of
