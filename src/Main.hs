@@ -1,5 +1,6 @@
 module Main where
   import Web.Lichess.Conduit
+  import Web.Lichess.Json
   import Web.Lichess.Request
 
   main :: IO ()
