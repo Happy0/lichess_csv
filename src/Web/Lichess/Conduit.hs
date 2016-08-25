@@ -8,12 +8,14 @@ module Web.Lichess.Conduit (
   import Data.Conduit
   import qualified Data.Conduit.List as L
   import qualified Data.Set as S
+  import qualified Data.Text as T
   import Web.Lichess.Json
   import Web.Lichess.Request
 
   {-
     Helper function to work out all the valid headers for a given endpoint
   -}
+  getHeaders :: Monad m => Conduit () m Value -> m (S.Set T.Text)
   getHeaders conduit =
       conduit =$=
       L.isolate 500 =$=
