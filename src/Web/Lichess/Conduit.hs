@@ -6,22 +6,30 @@ module Web.Lichess.Conduit (
 
   import Data.Aeson
   import Data.Conduit
+  import qualified Data.Csv as C
   import qualified Data.Conduit.List as L
   import qualified Data.Set as S
   import qualified Data.Text as T
+  import qualified Data.Text.Encoding as TE
+  import qualified Data.Vector as V
   import Web.Lichess.Json
   import Web.Lichess.Request
 
   {-
     Helper function to work out all the valid headers for a given endpoint
   -}
-  getHeaders :: Monad m => Conduit () m Value -> m (S.Set T.Text)
+  getHeaders :: Monad m => Conduit () m Value -> m C.Header
   getHeaders conduit =
-      conduit =$=
-      L.isolate 500 =$=
-      L.map flattenValue =$=
-      L.map getKeys $$
-      L.fold S.union S.empty
+    do
+      headers <- conduit =$=
+        L.isolate 500 =$=
+        L.map flattenValue =$=
+        L.map getKeys $$
+        L.fold S.union S.empty
+
+      let encodedHeaders = fmap TE.encodeUtf8 (S.toList headers)
+
+      return ((V.fromList) encodedHeaders)
 
   userGames :: String -> Source IO Value
   userGames userName = L.unfoldM (getGamesPage userName) 1 =$= L.concat

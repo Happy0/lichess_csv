@@ -15,4 +15,7 @@ module Main where
   main = do
     let userGamesConduit = userGames "happy0"
     headers <- getHeaders userGamesConduit
-    print headers
+
+    vals <- userGamesConduit =$= CL.isolate 100 =$= CL.map (jsonToCSV headers) $$ CL.mapM_ print
+
+    print vals
