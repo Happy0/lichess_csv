@@ -14,6 +14,5 @@ module Main where
   main :: IO ()
   main = do
     let userGamesConduit = userGames "happy0"
-    let tournamentConduit = tournamentConduit
     headers <- getHeaders userGamesConduit
     print headers
