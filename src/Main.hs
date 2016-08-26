@@ -8,6 +8,7 @@ module Main where
   import qualified Data.Text as T
   import Web.Lichess.Conduit
   import Web.Lichess.Csv
+  import Web.Lichess.File
   import Web.Lichess.Json
   import Web.Lichess.Request
 
