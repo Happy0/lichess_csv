@@ -1,25 +1,29 @@
 module Web.Lichess.File (writeCSVFile) where
 
-  import qualified Data.ByteString as B
+  import qualified Data.ByteString.Lazy as B
+  import qualified Blaze.ByteString.Builder as BB
+  import Control.Monad.Trans.Resource
   import qualified Data.Csv as C
-  import qualified Data.Csv.Incremental as CI
+  import qualified Data.Csv.Builder as CBuild
   import Data.Conduit
+  import qualified Data.Conduit.Combinators as CC
   import qualified Data.Conduit.Binary as CB
   import qualified Data.Conduit.List as CL
   import qualified Data.List as L
   import qualified Data.Vector as V
   import System.IO
 
-  writeCSVFile :: Monad m => C.Header -> FilePath -> Conduit () m C.Record -> IO ()
-  writeCSVFile header filepath recordConduit =
-    do
+  writeCSVFile header filepath recordConduit = do
       writeHeader filepath header
-      conduit =$= CL. map CL.encode $$ CB.sinkFile filepath
+      runResourceT $
+        recordConduit =$=
+        CL.map (BB.toByteString . CBuild.encodeRecord) =$=
+        CC.intersperse newLine $$
+        CB.sinkFile filepath
+    where
+      newLine = "\n"
 
   writeHeader :: FilePath -> C.Header -> IO ()
-  writeHeader filepath header = B.writeFile filepath (makeHeaderString header)
-
-  makeHeaderString :: C.Header -> B.ByteString
-  makeHeaderString header =
-    let headerList = V.toList header
-    in B.concat (L.intersperse "," headerList)
+  writeHeader filepath header = do
+    let csvHeader = BB.toLazyByteString (CBuild.encodeHeader header)
+    B.writeFile filepath csvHeader
