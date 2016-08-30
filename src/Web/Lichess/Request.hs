@@ -16,6 +16,7 @@ module Web.Lichess.Request (Page,
   import qualified Data.Map as M
   import qualified Data.Vector as V
   import Network.Wreq
+  import Web.Lichess.Json
 
   type Page = Int
 
@@ -27,13 +28,13 @@ module Web.Lichess.Request (Page,
       parseTournamentsResponse resp =
         let created = resp ^? key "created"
         in case created of
-          (Just (T.Array a)) -> Right (V.toList a)
+          (Just (T.Array a)) -> Right (fmap flattenValue (V.toList a))
           _ -> Left "Expected tournament JSON array"
 
   getTournament :: String -> IO Value
   getTournament tournamentId =
     let url = "http://en.lichess.org/api/tournament/" ++ tournamentId
-    in makeRequest url Nothing
+    in flattenValue <$> makeRequest url Nothing
 
   getTournamentStandings :: String -> Page -> IO (Either String [Value])
   getTournamentStandings tournamentId page = do
@@ -45,7 +46,7 @@ module Web.Lichess.Request (Page,
 
     return $
       case standings of
-        Just (T.Array a) -> Right (V.toList a)
+        Just (T.Array a) -> Right (fmap flattenValue (V.toList a))
         _ -> Left "Expected pairings array"
 
   getTournamentPairings :: String -> Page -> IO (Either String [Value])
@@ -75,7 +76,7 @@ module Web.Lichess.Request (Page,
   getUser :: String -> IO Value
   getUser userName =
     let url = "http://en.lichess.org/api/user/" ++ userName
-    in makeRequest url Nothing
+    in flattenValue <$> makeRequest url Nothing
 
   getUserGames :: String -> Page -> IO (Either String [Value])
   getUserGames userName page = do
@@ -88,7 +89,7 @@ module Web.Lichess.Request (Page,
 
     return $
       case games of
-        Just (T.Array a) -> Right (V.toList a)
+        Just (T.Array a) -> Right (fmap flattenValue (V.toList a))
         _ -> Left "Expected games array"
 
   paginatorOptions :: Page -> Options

@@ -33,19 +33,15 @@ module Web.Lichess.Conduit (
 
   userGames :: String -> Source IO Value
   userGames userName =
-    L.unfoldM (getGamesPage userName) 1 =$= L.concat =$= L.map flattenValue
+    L.unfoldM (getGamesPage userName) 1 =$= L.concat
 
   tournamentStandings :: String -> Source IO Value
   tournamentStandings tournamentId =
-     L.unfoldM (getTournamentStandingsPage tournamentId) 1 =$=
-      L.concat =$=
-      L.map flattenValue
+     L.unfoldM (getTournamentStandingsPage tournamentId) 1 =$= L.concat
 
   tournamentPairings :: String -> Source IO Value
   tournamentPairings tournamentId =
-    L.unfoldM (getTournamentPairingsPage tournamentId) 1 =$=
-      L.concat =$=
-      L.map flattenValue
+    L.unfoldM (getTournamentPairingsPage tournamentId) 1 =$= L.concat
 
   getGamesPage :: String -> Int -> IO (Maybe ([Value], Int))
   getGamesPage userName page = getResourcePage getUserGames userName page
