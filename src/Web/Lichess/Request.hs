@@ -12,6 +12,7 @@ module Web.Lichess.Request (Page,
   import Data.Aeson (encode, Value)
   import Data.Aeson.Lens (key, nth)
   import qualified Data.Aeson.Types as T
+  import qualified Data.HashMap.Strict as Hm
   import qualified Data.Text as Te
   import qualified Data.Map as M
   import qualified Data.Vector as V
@@ -46,8 +47,15 @@ module Web.Lichess.Request (Page,
 
     return $
       case standings of
-        Just (T.Array a) -> Right (fmap flattenValue (V.toList a))
+        Just (T.Array a) ->
+          Right (fmap (addTournamentId . flattenValue) (V.toList a))
         _ -> Left "Expected pairings array"
+
+    where
+      addTournamentId :: Value -> Value
+      addTournamentId (T.Object o) =
+        T.Object (Hm.insert "tournamentId" (T.String (Te.pack tournamentId)) o)
+      addTournameId _ = error "i dun goofed (tournament standings)"
 
   getTournamentPairings :: String -> Page -> IO (Either String [Value])
   getTournamentPairings tournamentId page = do
@@ -70,7 +78,8 @@ module Web.Lichess.Request (Page,
           (Just w, Just b) ->
             let whitePair = ("white_player", w)
             in let blackPair = ("black_player", b)
-            in Right (T.object [whitePair, blackPair])
+            in let tournamentIdPair = ("tournament_id", T.String (Te.pack tournamentId))
+            in Right (T.object [whitePair, blackPair, tournamentIdPair])
           _ -> Left "Expected white and black player in pairing"
 
   getUser :: String -> IO Value
