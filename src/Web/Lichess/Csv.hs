@@ -15,10 +15,12 @@ module Web.Lichess.Csv (jsonToCSV) where
       textValueOrEmpty :: Maybe A.Value -> B.ByteString
       textValueOrEmpty (Just v) = valueToText v
       textValueOrEmpty _ = ""
-
-
   jsonToCSV _ _ = error "Expected a JSON object to convert to CSV"
-
-
+  
   valueToText :: A.Value -> B.ByteString
-  valueToText value = C8.pack (show value)
+  valueToText val =
+    case val of     
+      (A.String t) -> E.encodeUtf8 t
+      (A.Bool b) -> C8.pack (show b)
+      (A.Number num) -> C8.pack (show num)
+      _ -> ""
