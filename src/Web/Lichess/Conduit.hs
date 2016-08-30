@@ -32,15 +32,20 @@ module Web.Lichess.Conduit (
       return ((V.fromList) encodedHeaders)
 
   userGames :: String -> Source IO Value
-  userGames userName = L.unfoldM (getGamesPage userName) 1 =$= L.concat
+  userGames userName =
+    L.unfoldM (getGamesPage userName) 1 =$= L.concat =$= L.map flattenValue
 
   tournamentStandings :: String -> Source IO Value
   tournamentStandings tournamentId =
-     L.unfoldM (getTournamentStandingsPage tournamentId) 1 =$= L.concat
+     L.unfoldM (getTournamentStandingsPage tournamentId) 1 =$=
+      L.concat =$=
+      L.map flattenValue
 
   tournamentPairings :: String -> Source IO Value
   tournamentPairings tournamentId =
-    L.unfoldM (getTournamentPairingsPage tournamentId) 1 =$= L.concat
+    L.unfoldM (getTournamentPairingsPage tournamentId) 1 =$=
+      L.concat =$=
+      L.map flattenValue
 
   getGamesPage :: String -> Int -> IO (Maybe ([Value], Int))
   getGamesPage userName page = getResourcePage getUserGames userName page
