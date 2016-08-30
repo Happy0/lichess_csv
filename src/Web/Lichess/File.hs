@@ -21,13 +21,10 @@ module Web.Lichess.File (writeCSVFile) where
 
       -- TODO: Learn how to use CB.sinkFile. Jeez, y so difficult?
       recordConduit =$=
-        CL.map (BB.toByteString . CBuild.encodeRecord) =$=
-        CC.intersperse newLine $$
+        CL.map (BB.toByteString . CBuild.encodeRecord) $$
         CL.mapM_ (BS.hPut handle)
 
   writeHeader :: FilePath -> C.Header -> Handle -> IO ()
   writeHeader filepath header handle = do
     let csvHeader = BB.toLazyByteString (CBuild.encodeHeader header)
     B.hPut handle csvHeader
-
-  newLine = "\n"
