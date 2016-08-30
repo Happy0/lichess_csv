@@ -1,5 +1,6 @@
 module Web.Lichess.File (writeCSVFile) where
 
+  import qualified Data.ByteString as BS
   import qualified Data.ByteString.Lazy as B
   import qualified Blaze.ByteString.Builder as BB
   import Control.Monad.Trans.Resource
@@ -13,17 +14,20 @@ module Web.Lichess.File (writeCSVFile) where
   import qualified Data.Vector as V
   import System.IO
 
+  writeCSVFile :: C.Header -> FilePath -> Source IO C.Record -> IO ()
   writeCSVFile header filepath recordConduit = do
-      writeHeader filepath header
-      runResourceT $
-        recordConduit =$=
+    withFile filepath WriteMode $ \handle -> do
+      writeHeader filepath header handle
+
+      -- TODO: Learn how to use CB.sinkFile. Jeez, y so difficult?
+      recordConduit =$=
         CL.map (BB.toByteString . CBuild.encodeRecord) =$=
         CC.intersperse newLine $$
-        CB.sinkFile filepath
-    where
-      newLine = "\n"
+        CL.mapM_ (BS.hPut handle)
 
-  writeHeader :: FilePath -> C.Header -> IO ()
-  writeHeader filepath header = do
+  writeHeader :: FilePath -> C.Header -> Handle -> IO ()
+  writeHeader filepath header handle = do
     let csvHeader = BB.toLazyByteString (CBuild.encodeHeader header)
-    B.writeFile filepath csvHeader
+    B.hPut handle csvHeader
+
+  newLine = "\n"

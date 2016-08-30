@@ -17,6 +17,6 @@ module Main where
     let userGamesConduit = userGames "happy0"
     headers <- getHeaders userGamesConduit
 
-    vals <- userGamesConduit =$= CL.isolate 100 =$= CL.map (jsonToCSV headers) $$ CL.mapM_ print
+    let valuesConduit = userGamesConduit =$= CL.map (jsonToCSV headers)
 
-    print vals
+    writeCSVFile headers "test.csv" valuesConduit
