@@ -121,5 +121,5 @@ module Web.Lichess.Request (Page,
     where
       makeRequest request = do
         r <- asJSON =<< request
-        threadDelay 2000000
+        threadDelay 2500000
         return (r ^. responseBody)

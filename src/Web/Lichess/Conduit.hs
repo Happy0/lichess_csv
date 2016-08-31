@@ -25,7 +25,7 @@ module Web.Lichess.Conduit (getHeadersConduit,
   getHeadersConduit conduit =
     do
       headers <- conduit =$=
-        L.isolate 500 =$=
+        L.isolate 200 =$=
         L.map flattenValue =$=
         L.map getKeys $$
         L.fold S.union S.empty
