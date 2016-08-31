@@ -1,12 +1,16 @@
 module Web.Lichess.Conduit (getHeadersConduit,
                             userGames,
+                            tournamentsConduit,
                             tournamentPairings,
                             tournamentStandings) where
 
+  import Control.Lens
   import Data.Aeson
+  import Data.Aeson.Lens (key, nth)
   import Data.Conduit
   import qualified Data.Csv as C
   import qualified Data.Conduit.List as L
+  import Data.Maybe
   import qualified Data.Set as S
   import qualified Data.Text as T
   import qualified Data.Text.Encoding as TE
@@ -33,6 +37,24 @@ module Web.Lichess.Conduit (getHeadersConduit,
   userGames :: String -> Source IO Value
   userGames userName =
     L.unfoldM (getGamesPage userName) 1 =$= L.concat
+
+  tournamentsConduit :: IO (Source IO Value)
+  tournamentsConduit = do
+    tournaments <- getTournaments
+    case tournaments of
+      Left err -> error "Couldn't marshall tournaments... Or something"
+      Right tours -> do
+        let tournamentsConduit = L.sourceList tours
+        return (tournamentsConduit =$= L.mapM getFullTournamentById)
+
+    where
+      getFullTournamentById :: Value -> IO Value
+      getFullTournamentById tournament = do
+        let tournamentId = tournament ^? key "id"
+
+        case tournamentId of
+          Just (String tourId) -> getTournament (T.unpack tourId)
+          Nothing -> error "Couldnae get tournament... ;x"
 
   tournamentStandings :: String -> Source IO Value
   tournamentStandings tournamentId =

@@ -1,4 +1,6 @@
-module Web.Lichess.File (writeHeader, appendCSVFileConduit) where
+module Web.Lichess.File (writeHeader,
+                         appendCSVFile,
+                         appendCSVFileConduit) where
 
   import qualified Data.ByteString as BS
   import qualified Data.ByteString.Lazy as B
