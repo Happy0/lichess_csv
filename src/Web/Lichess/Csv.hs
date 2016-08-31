@@ -1,4 +1,4 @@
-module Web.Lichess.Csv (jsonToCSVConduit) where
+module Web.Lichess.Csv (jsonToCSVConduit, jsonToCSV) where
 
   import qualified Data.Aeson as A
   import qualified Data.ByteString as B

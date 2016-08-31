@@ -19,4 +19,5 @@ module Main where
 
     let valuesConduit = userGamesConduit =$= jsonToCSVConduit headers
 
-    writeCSVFile headers "test.csv" valuesConduit
+    writeHeader "test.csv" headers
+    appendCSVFileConduit "test.csv" valuesConduit
