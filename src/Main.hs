@@ -15,7 +15,7 @@ module Main where
   main :: IO ()
   main = do
     let userGamesConduit = userGames "happy0"
-    headers <- getHeaders userGamesConduit
+    headers <- getHeadersConduit userGamesConduit
 
     let valuesConduit = userGamesConduit =$= jsonToCSVConduit headers
 

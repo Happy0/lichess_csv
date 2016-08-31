@@ -1,4 +1,4 @@
-module Web.Lichess.Csv (jsonToCSVConduit, jsonToCSV) where
+module Web.Lichess.Csv (getHeaders, jsonToCSVConduit, jsonToCSV) where
 
   import qualified Data.Aeson as A
   import qualified Data.ByteString as B
@@ -7,8 +7,15 @@ module Web.Lichess.Csv (jsonToCSVConduit, jsonToCSV) where
   import Data.Conduit
   import qualified Data.Conduit.List as CL
   import qualified Data.HashMap.Strict as HM
+  import qualified Data.Set as S
   import qualified Data.Text as T
   import qualified Data.Text.Encoding as E
+  import qualified Data.Vector as V
+  import Web.Lichess.Json
+
+  getHeaders :: A.Value -> C.Header
+  getHeaders value =
+    fmap E.encodeUtf8 (V.fromList (S.toList (getKeys value)))
 
   jsonToCSVConduit :: Monad m => C.Header -> Conduit A.Value m C.Record
   jsonToCSVConduit header = CL.map (jsonToCSV header)

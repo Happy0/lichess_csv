@@ -1,5 +1,4 @@
-module Web.Lichess.Conduit (
-                            getHeaders,
+module Web.Lichess.Conduit (getHeadersConduit,
                             userGames,
                             tournamentPairings,
                             tournamentStandings) where
@@ -18,8 +17,8 @@ module Web.Lichess.Conduit (
   {-
     Helper function to work out all the valid headers for a given endpoint
   -}
-  getHeaders :: Monad m => Conduit () m Value -> m C.Header
-  getHeaders conduit =
+  getHeadersConduit :: Monad m => Conduit () m Value -> m C.Header
+  getHeadersConduit conduit =
     do
       headers <- conduit =$=
         L.isolate 500 =$=
