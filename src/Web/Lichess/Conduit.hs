@@ -54,7 +54,7 @@ module Web.Lichess.Conduit (getHeadersConduit,
 
         case tournamentId of
           Just (String tourId) -> getTournament (T.unpack tourId)
-          Nothing -> error "Couldnae get tournament... ;x"
+          Nothing -> error "Couldnae get tournament... ;x" -- and wit m8?
 
   tournamentStandings :: String -> Source IO Value
   tournamentStandings tournamentId =

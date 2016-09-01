@@ -12,15 +12,50 @@ module Main where
   import Web.Lichess.File
   import Web.Lichess.Json
   import Web.Lichess.Request
+  import System.IO
+
+  data Headers = Headers {
+    user :: Header,
+    game :: Header,
+    tournament :: Header,
+    standings :: Header,
+    pairings :: Header
+  }
+
+  data CSVPaths = CSVPaths {
+    userPath :: FilePath,
+    gamePath :: FilePath,
+    tournamentPath :: FilePath,
+    standingPath :: FilePath
+  }
 
   main :: IO ()
   main = do
     userHeaders <- startUserCSV
     gameHeaders <- startGamesCSV
     tournamentHeaders <- startTournamentsCSV
-    tournamentStandingsHeaders <- startTournamentStandingsCSV
-    tournamentPairingsHeaders <- startTournamentPairingsCSV
+    standingHeaders <- startTournamentStandingsCSV
+    pairingHeaders <- startTournamentPairingsCSV
+
+    let headers = Headers userHeaders gameHeaders tournamentHeaders
+                            standingHeaders pairingHeaders
+
+    exploreTournaments headers
+
     return ()
+
+  exploreTournaments :: Headers -> IO ()
+  exploreTournaments headers@(Headers _ _ tourHeaders _ _) = do
+    tourConduit <- tournamentsConduit
+    tourConduit $$ CL.mapM_ $ \tournament -> do
+      let csvRecord = jsonToCSV tourHeaders tournament
+      appendCSVFile "tournaments.csv" csvRecord
+
+  exploreStandings :: Headers -> String -> IO ()
+  exploreStandings headers tournamentId = undefined
+
+  exploreUserGames :: Headers -> String -> IO ()
+  exploreUserGames headers userId = undefined
 
   startUserCSV :: IO Header
   startUserCSV = do
